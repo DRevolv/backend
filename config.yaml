@@ -1,0 +1,66 @@
+# Environment Configuration for DRevolv Backend
+# This file contains environment-specific settings
+
+environments:
+  dev:
+    server:
+      host: "localhost"
+      port: 8080
+      debug: true
+    database:
+      host: "dev-db.internal"
+      port: 5432
+      name: "drevolv_dev"
+      ssl_mode: "disable"
+    logging:
+      level: "debug"
+      format: "text"
+    features:
+      enable_debug_endpoints: true
+      enable_metrics: false
+
+  test:
+    server:
+      host: "0.0.0.0"
+      port: 8080
+      debug: false
+    database:
+      host: "test-db.internal"
+      port: 5432
+      name: "drevolv_test"
+      ssl_mode: "require"
+    logging:
+      level: "info"
+      format: "json"
+    features:
+      enable_debug_endpoints: false
+      enable_metrics: true
+
+  prod:
+    server:
+      host: "0.0.0.0"
+      port: 8080
+      debug: false
+    database:
+      host: "prod-db.internal"
+      port: 5432
+      name: "drevolv_prod"
+      ssl_mode: "require"
+    logging:
+      level: "warn"
+      format: "json"
+    features:
+      enable_debug_endpoints: false
+      enable_metrics: true
+
+# Common settings across all environments
+common:
+  app_name: "DRevolv Backend"
+  timeout:
+    read: "30s"
+    write: "30s"
+    idle: "120s"
+  cors:
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allowed_headers: ["*"] 
