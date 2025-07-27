@@ -13,7 +13,7 @@ on:
       - '.github/workflows/backend.yml'
 
 env:
-  GO_VERSION: '1.24.1'
+  GO_VERSION: '1.23'
 
 jobs:
   test:
@@ -34,30 +34,26 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
 
     - name: Download dependencies
-      working-directory: backend
       run: go mod download
 
     - name: Verify dependencies
-      working-directory: backend
       run: go mod verify
 
     - name: Run tests
-      working-directory: backend
       run: go test -v ./...
 
     - name: Run tests with coverage
-      working-directory: backend
       run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        file: ./backend/coverage.out
+        file: ./coverage.out
         flags: backend
         name: backend-coverage
 
@@ -77,7 +73,6 @@ jobs:
       uses: golangci/golangci-lint-action@v6
       with:
         version: latest
-        working-directory: backend
 
   build:
     runs-on: ubuntu-latest
@@ -103,26 +98,22 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+        key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
 
     - name: Download dependencies
-      working-directory: backend
       run: go mod download
 
     - name: Create bin directory
-      working-directory: backend
       run: mkdir -p bin
 
     - name: Build application
-      working-directory: backend
       run: |
         # Build with version and environment info
         go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app ./main.go
 
     - name: Build for multiple platforms
-      working-directory: backend
       run: |
         # Build for Linux
         GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app-linux-amd64 ./main.go
@@ -137,7 +128,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: backend-binaries-${{ env.ENVIRONMENT }}
-        path: backend/bin/
+        path: bin/
         retention-days: ${{ github.ref_name == 'prod' && 90 || 30 }}
 
   security:
@@ -157,7 +148,7 @@ jobs:
     - name: Run Gosec Security Scanner
       uses: securecodewarrior/github-action-gosec@master
       with:
-        args: '-fmt sarif -out gosec.sarif ./backend/...'
+        args: '-fmt sarif -out gosec.sarif ./...'
 
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v3
