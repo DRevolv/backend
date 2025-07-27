@@ -39,19 +39,19 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Download dependencies
-      working-directory: ./backend
+      working-directory: backend
       run: go mod download
 
     - name: Verify dependencies
-      working-directory: ./backend
+      working-directory: backend
       run: go mod verify
 
     - name: Run tests
-      working-directory: ./backend
+      working-directory: backend
       run: go test -v ./...
 
     - name: Run tests with coverage
-      working-directory: ./backend
+      working-directory: backend
       run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
     - name: Upload coverage to Codecov
@@ -108,26 +108,30 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Download dependencies
-      working-directory: ./backend
+      working-directory: backend
       run: go mod download
 
+    - name: Create bin directory
+      working-directory: backend
+      run: mkdir -p bin
+
     - name: Build application
-      working-directory: ./backend
+      working-directory: backend
       run: |
         # Build with version and environment info
-        go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o ./bin/app ./main.go
+        go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app ./main.go
 
     - name: Build for multiple platforms
-      working-directory: ./backend
+      working-directory: backend
       run: |
         # Build for Linux
-        GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o ./bin/app-linux-amd64 ./main.go
+        GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app-linux-amd64 ./main.go
         # Build for Windows
-        GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o ./bin/app-windows-amd64.exe ./main.go
+        GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app-windows-amd64.exe ./main.go
         # Build for macOS
-        GOOS=darwin GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o ./bin/app-darwin-amd64 ./main.go
+        GOOS=darwin GOARCH=amd64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app-darwin-amd64 ./main.go
         # Build for macOS ARM64 (Apple Silicon)
-        GOOS=darwin GOARCH=arm64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o ./bin/app-darwin-arm64 ./main.go
+        GOOS=darwin GOARCH=arm64 go build -v -ldflags "-X main.Version=${{ env.BUILD_VERSION }} -X main.Environment=${{ env.ENVIRONMENT }}" -o bin/app-darwin-arm64 ./main.go
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
