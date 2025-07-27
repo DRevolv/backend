@@ -13,5 +13,6 @@ func main() {
 	fmt.Printf("Version: %s\n", Version)
 	fmt.Printf("Environment: %s\n", Environment)
 	fmt.Println("Server starting...")
+
 	fmt.Println("Hello, World!")
 }
